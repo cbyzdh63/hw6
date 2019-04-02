@@ -1,0 +1,282 @@
+六、源代码
+1.添加高斯噪声
+I = imread('C:\Users\Administrator\Desktop\大三下\第六次作业\lena.bmp'); 
+[m,n]=size(I);
+figure(1)
+subplot(1,2,1);
+imshow(I)
+title('原图像');
+e=0;d=0.08;
+u1=rand(m,n);
+u2=rand(m,n);
+x=d*sqrt(-2*log(u1)).*cos(2*pi*u2)+e;
+p=double(I)/255+x;
+p=uint8(255*p);
+subplot(1,2,2);
+imshow(p);
+title('加高斯噪声后');
+2.中点滤波，算术均值滤波，几何均值滤波
+n = 3;  
+template = ones(n);  
+[height, width] = size(p);
+figure(1)
+subplot(1,2,1);
+imshow(p);
+title('有高斯噪声图像');
+x1 = double(p);  
+x2 = x1;  
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1).*template;  
+        s = sum(sum(c));  
+        x2(i+(n-1)/2,j+(n-1)/2) = s/(n*n);  
+    end  
+end  
+  
+g = uint8(x2);  
+subplot(1,2,2);
+imshow(g); 
+title('算术均值滤波');
+
+template = ones(n);
+n=3;
+[height, width] = size(p);
+figure(1)
+subplot(1,2,1);
+imshow(p);
+title('有高斯噪声图像');
+x1 = double(p);  
+x2 = x1;  
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1).*template;  
+        s = prod(prod(c));  
+        x2(i+(n-1)/2,j+(n-1)/2) = nthroot(s,n*n);  
+    end  
+end  
+g = uint8(x2);  
+subplot(1,2,2);
+imshow(g); 
+title('几何算术均值滤波');
+
+[height, width] = size(p);  
+n=3;
+figure(1)
+subplot(1,2,1);
+imshow(p);
+title('有高斯噪声图像');
+x1 = double(p);  
+x2 = x1;  
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1);  
+        e = c(1,:);  
+        for k = 2:n  
+            e = [e, c(k, :)];  
+        end  
+        tmp = 1/2*(max(e)+min(e));  
+        x2(i+(n-1)/2,j+(n-1)/2) = tmp;  
+    end  
+end
+g = uint8(x2);
+ subplot(1,2,2);
+imshow(g);  
+title('中点滤波');
+3.逆谐波均值滤波器消除椒盐噪音
+[m,n] = size(I);
+jiaoyan=I;
+k1=0.1;  
+k2=0.9;  
+a1=rand(m,n)<k1;  
+a2=rand(m,n)>k2;  
+jiaoyan(a1)=0;  
+jiaoyan(a2)=255;    
+Q = -1;
+J = wextend('2D','sym',jiaoyan,1);
+G = zeros(m,n);
+for i = 2:(m+1)
+    for j = 2:(n+1)
+        o = double(J(i-1:i+1,j-1:j+1));
+        G(i-1,j-1) = (sum(sum(o.^(Q+1))))/(sum(sum(o.^Q)));
+    end
+end
+G = uint8(G);
+figure(1);
+subplot(1,2,1);
+imshow(jiaoyan);
+title('椒盐均为0.1图像')
+subplot(1,2,2);
+imshow(G);
+title('Q=-1;逆谐波均值滤波器')
+4.最大值，最小值，中值滤波
+[height,width] = size(I);
+jiaoyan=I;
+k1=0.1;  
+k2=0.9;  
+a1=rand(height,width)<k1;  
+a2=rand(height,width)>k2;  
+jiaoyan(a1)=0;  
+jiaoyan(a2)=255;    
+figure(1)
+subplot(1,2,1);
+imshow(jiaoyan);
+title('椒盐均为0.1图像');
+x1 = double(jiaoyan);  
+x2 = x1;  
+n=3;
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1);  
+        e = c(1,:);  
+        for k = 2:n  
+            e = [e, c(k, :)];  
+        end  
+        tmp = max(e);  
+        x2(i+(n-1)/2,j+(n-1)/2) = tmp;  
+    end  
+end
+g = uint8(x2);
+subplot(1,2,2);
+imshow(g);  
+title('最大值滤波');
+
+[height,width] = size(I);
+jiaoyan=I;
+k1=0.1;  
+k2=0.9;  
+a1=rand(height,width)<k1;  
+a2=rand(height,width)>k2;  
+jiaoyan(a1)=0;  
+jiaoyan(a2)=255;    
+figure(1)
+subplot(1,2,1);
+imshow(jiaoyan);
+title('椒盐均为0.1图像');
+x1 = double(jiaoyan);  
+x2 = x1;  
+n=3;
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1);  
+        e = c(1,:);  
+        for k = 2:n  
+            e = [e, c(k, :)];  
+        end  
+        tmp = min(e);  
+        x2(i+(n-1)/2,j+(n-1)/2) = tmp;  
+    end  
+end
+g = uint8(x2);
+ subplot(1,2,2);
+imshow(g);  
+title('最小值滤波');
+
+[height,width] = size(I);
+jiaoyan=I;
+k1=0.1;  
+k2=0.9;  
+a1=rand(height,width)<k1;  
+a2=rand(height,width)>k2;  
+jiaoyan(a1)=0;  
+jiaoyan(a2)=255;    
+figure(1)
+subplot(1,2,1);
+imshow(jiaoyan);
+title('椒盐均为0.1图像');
+x1 = double(jiaoyan);   
+x2 = x1;  
+for i = 1:height-n+1  
+    for j = 1:width-n+1  
+        c = x1(i:i+n-1,j:j+n-1);  
+        e = c(1,:);  
+        for k = 2:n  
+            e = [e, c(k, :)];  
+        end  
+        tmp =median(e);  
+        x2(i+(n-1)/2,j+(n-1)/2) = tmp;  
+    end  
+end
+g = uint8(x2);
+ subplot(1,2,2);
+imshow(g);  
+title('中值滤波');
+5.约束及非约束维纳滤波
+MU = 0;
+SIGMA = 10/(255*255);
+I = imread('lena.bmp');
+[m,n] = size(I);
+M = 2*m;
+N = 2*n;
+a = 0.03;
+b = 0.03;
+T = 1;
+K = 0.04;
+gama = 0.001;
+f = double(I);
+F = fft2(f);
+F = fftshift(F);
+for u = 1:m
+    for v = 1:n
+        if (u-m/2)*a+(v-n/2)*b~=0
+            H(u,v) = T/(pi*((u-m/2)*a+(v-n/2)*b))*sin(pi*((u-m/2)*a+(v-n/2)*b))*exp(-sqrt(-1)*pi*((u-m/2)*a+(v-n/2)*b));
+        else
+            H(u,v) = 1;
+        end
+        G(u,v) = F(u,v)*H(u,v);
+    end
+end
+g = ifftshift(G);
+g = ifft2(g);
+g = 256.*g./(max(max(g)));
+g = uint8(real(g));
+figure(1)
+imshow(g);
+title('运动模糊');
+R0 = normrnd(MU,sqrt(SIGMA),m,n);
+R = uint8(R0*255);
+Inoise0 = R+g;
+Inoise = zeros(m,n);
+for i = 1:m
+    for j = 1:n
+        if Inoise0(i,j)>=0&&Inoise0(i,j)<=255
+            Inoise(i,j) = Inoise0(i,j);
+        elseif Inoise0(i,j)<0
+            Inoise(i,j) = 0;
+        elseif Inoise0(i,j)>255
+            Inoise(i,j) = 255;
+        end
+    end
+end
+Inoise = uint8(Inoise);
+figure(2)
+imshow(Inoise);
+title('运动模糊+高斯噪声');
+If = double(Inoise);
+If = fft2(If);
+If = fftshift(If);
+for u = 1:m
+    for v = 1:n
+        F1(u,v) = (abs(H(u,v))^2/(H(u,v)*(abs(H(u,v))^2+K)))*If(u,v);
+    end
+end
+f1 = ifftshift(F1);
+f1 = ifft2(f1);
+f1 = 255.*f1./(max(max(f1)));
+f1 = uint8(real(f1));
+figure(3)
+imshow(f1);
+title('无约束维纳滤波');
+p = [0 -1 0;-1 4 -1;0 -1 0];
+P = fft2(p,m,n);
+P = fftshift(P);
+for u = 1:m
+    for v = 1:n
+        F2(u,v) = conj(H(u,v))*If(u,v)/(abs(H(u,v))^2+gama*abs(P(u,v))^2);
+    end
+end
+f2 = ifftshift(F2);
+f2 = ifft2(f2);
+f2 = 255.*f2./(max(max(f2)));
+f2 = uint8(real(f2));
+figure(4);
+imshow(f2);
